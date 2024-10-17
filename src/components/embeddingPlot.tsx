@@ -7,11 +7,11 @@ import * as THREE from 'three'
 
 import { performPCA ,getEmbeddings} from './doEmbeddingPCA'
 //import { getEmbeddings } from './geminiEmbedding'
-
+/*
 const mockGeminiEmbedding = async (text: string) => {
   return Array.from({ length: 512 }, () => Math.random() - 0.5)
 }
-
+*/
 
 const projectTo3D = (vector: number[]) => {
   const [x, y, z, w] = vector
@@ -214,41 +214,39 @@ export default function TextEmbeddingVisualization() {
           setEmbeddings4D(embeddings4D);
         } catch (error) {
           console.error("Failed to get embeddings:", error);
-          // エラーに応じた処理を行う (例: エラー状態を表示、デフォルト値を設定など)
         }
       };
-    
+  
       fetchEmbeddings();
-    }, [texts]); // texts が変更されたときに再実行
-    if (!embeddings4D) {
-      return <div>Loading...</div>; // またはローディングインジケータなど
-    }
-  return (
-    <div style={{ width: '100%', height: '100vh', background: 'black' }}>
-      <Canvas camera={{ position: [0, 0, 1] }}>
-        <color attach="background" args={['black']} />
-        <ambientLight intensity={0.2} />
-        <pointLight position={[10, 10, 10]} intensity={0.5} />
-        {!is2DMode && <OrbitControls />}
-        <RotatingStars embeddings4D={embeddings4D} texts={texts} is2DMode={is2DMode} />
-      </Canvas>
-      <button
-        onClick={() => setIs2DMode(!is2DMode)}
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '10px 20px',
-          backgroundColor: '#4CAF50',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Switch to {is2DMode ? '3D' : '2D'} Mode
-      </button>
-    </div>
-  )
-}
+    }, [texts]);
+  
+
+    return (
+      <div style={{ width: '100%', height: '100vh', background: 'black' }}>
+        <Canvas camera={{ position: [0, 0, 1] }}>
+          <color attach="background" args={['black']} />
+          <ambientLight intensity={0.2} />
+          <pointLight position={[10, 10, 10]} intensity={0.5} />
+          {!is2DMode && <OrbitControls />}
+          <RotatingStars embeddings4D={embeddings4D} texts={texts} is2DMode={is2DMode} />
+        </Canvas>
+        <button
+          onClick={() => setIs2DMode(!is2DMode)}
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '10px 20px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          Switch to {is2DMode ? '3D' : '2D'} Mode
+        </button>
+      </div>
+    );
+  };

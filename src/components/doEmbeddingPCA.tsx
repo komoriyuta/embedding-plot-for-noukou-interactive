@@ -18,9 +18,7 @@ export async function getEmbeddings(
 ): Promise<EmbeddingResponse> {
   try {
     const clientOptions = { apiEndpoint: apiEndpoint };
-    const match = apiEndpoint.match(/(?<Location>\w+-\w+)/);
-    const location = match ? match.groups.Location : 'us-central1';
-    const endpoint = `projects/${process.env.GCP_PROJECT_ID}/locations/${location}/publishers/google/models/${model}`;
+    const endpoint = `projects/${process.env.GCP_PROJECT_ID}/locations/us-central1/publishers/google/models/${model}`;
 
     const client = new PredictionServiceClient(clientOptions);
 
@@ -28,15 +26,15 @@ export async function getEmbeddings(
       helpers.toValue({ content: text, taskType: task })
     );
 
-    const request = { endpoint, instances };
+    const request = { endpoint, instances: instances.filter((instance): instance is NonNullable<typeof instance> => instance !== null && instance !== undefined) };
 
-    const [response] = await client.predict(request);
-
-    const predictions = response.predictions;
+    // Correctly await and destructure the response
+    const response = await client.predict(request);
+    const predictions = response[0].predictions ?? [];
     const embeddings: number[][] = [];
 
-    for (const prediction of predictions) {
-      const values = prediction.structValue.fields.embeddings.structValue.fields.values.listValue.values;
+    for (const prediction of predictions ?? []) {
+      const values = prediction?.structValue?.fields?.embeddings?.structValue?.fields?.values?.listValue?.values ?? [];
       const embedding: number[] = values.map((value) => Number(value.numberValue));
       embeddings.push(embedding);
     }
@@ -44,21 +42,27 @@ export async function getEmbeddings(
     return { embeddings };
 
   } catch (error) {
-    // エラーオブジェクトをそのまま返すのではなく、適切なエラー処理を行う
-    console.error("Error getting embeddings:", error);
-    // エラーをスローして呼び出し元に伝える
-    throw new Error(`Failed to get embeddings: ${error.message}`);
-    // あるいは、デフォルト値を返す
-    // return { embeddings: [] }; 
+    if(error instanceof Error){
+      console.error("Error getting embeddings:", error);
+      throw new Error(`Failed to get embeddings: ${error.message}`);
+    }else{
+      console.error("Unknown error getting embeddings:", error);
+      throw new Error("Failed to get embeddings due to an unknown error");
+    }
   }
 }
 
-export async function performPCA(data : number[][]) {
+export async function performPCA(data: number[][]) {
     try{
         const pca = new PCA(data);
         return pca.predict(data, { nComponents: 4 }).to2DArray();
-    }catch{
-        console.error("PCA Error");
-        throw new Error("PCA Error");
+    }catch (error) {
+      if(error instanceof Error){
+        console.error("Error getting PCA:", error);
+        throw new Error(`Failed to get PCA: ${error.message}`);
+      }else{
+        console.error("Unknown error PCA:", error);
+        throw new Error("Failed to get PCA due to an unknown error");
+      }
     }
 }
