@@ -220,7 +220,9 @@ export default function TextEmbeddingVisualization() {
     
       fetchEmbeddings();
     }, [texts]); // texts が変更されたときに再実行
-  if(!embeddings4D){
+    if (!embeddings4D) {
+      return <div>Loading...</div>; // またはローディングインジケータなど
+    }
   return (
     <div style={{ width: '100%', height: '100vh', background: 'black' }}>
       <Canvas camera={{ position: [0, 0, 1] }}>
@@ -248,5 +250,5 @@ export default function TextEmbeddingVisualization() {
         Switch to {is2DMode ? '3D' : '2D'} Mode
       </button>
     </div>
-  )}
+  )
 }
