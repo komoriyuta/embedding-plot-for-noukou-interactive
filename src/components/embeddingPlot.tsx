@@ -206,16 +206,20 @@ export default function TextEmbeddingVisualization() {
     "来年は、もっと積極的にイベントに参加したい！",
     "学園祭は、学生生活の大切なイベントです！",
     ]
-  useEffect(() => {
-    const fetchEmbeddings = async () => {
-      const rawEmbeddingPromises = getEmbeddings(texts)
-      //const projectedTo4dEmbeddings = await performPCA(Promise.all(rawEmbeddingPromises))
-      const newEmbeddings = await Promise.resolve(rawEmbeddingPromises)
-      const newEmbeddings4D = await performPCA(newEmbeddings.embeddings)
-      setEmbeddings4D(newEmbeddings4D)
-    }
-    fetchEmbeddings()
-  }, [])
+    useEffect(() => {
+      const fetchEmbeddings = async () => {
+        try {
+          const { embeddings: rawEmbeddings } = await getEmbeddings(texts);
+          const embeddings4D = await performPCA(rawEmbeddings);
+          setEmbeddings4D(embeddings4D);
+        } catch (error) {
+          console.error("Failed to get embeddings:", error);
+          // エラーに応じた処理を行う (例: エラー状態を表示、デフォルト値を設定など)
+        }
+      };
+    
+      fetchEmbeddings();
+    }, [texts]); // texts が変更されたときに再実行
 
   return (
     <div style={{ width: '100%', height: '100vh', background: 'black' }}>
