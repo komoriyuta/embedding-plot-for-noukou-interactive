@@ -218,7 +218,7 @@ export default function TextEmbeddingVisualization() {
       };
   
       fetchEmbeddings();
-    }, [texts]);
+    }, []);
   
 
     return (

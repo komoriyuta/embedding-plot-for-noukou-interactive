@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    assetPrefix: '/noukou-demo/',
+   // assetPrefix: '/noukou-demo/',
     output: 'standalone',
     experimental: {
         serverActions: {
